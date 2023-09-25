@@ -32,6 +32,7 @@ http://arduiniana.org.
 // When set, _DEBUG co-opts pins 11 and 13 for debugging with an
 // oscilloscope or logic analyzer.  Beware: it also slightly modifies
 // the bit times, so don't rely on it too much at high baud rates
+#include <cstdint>
 #define _DEBUG 0
 #define _DEBUG_PIN1 11
 #define _DEBUG_PIN2 13
@@ -392,10 +393,17 @@ void SoftwareSerial::recv()
       else // else clause added to ensure function timing is ~balanced
         d &= noti;
     }
-
-    // skip the stop bit
-    tunedDelay(_rx_delay_stopbit);
-    DebugPulse(_DEBUG_PIN2, 1);
+	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_EVEN) || (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
+	 	tunedDelay(_rx_delay_stopbit);
+		DebugPulse(_DEBUG_PIN2, 1);
+	#endif 
+	
+    // skip the stop bits
+	for (uint8_t skipperStopBits = 0; skipperStopBits < GPIO_SERIAL_STOP_BITS; skipperStopBits++){
+		tunedDelay(_rx_delay_stopbit);
+		DebugPulse(_DEBUG_PIN2, 1);
+	}
+	
 
     if (_inverse_logic)
       d = ~d;
@@ -613,6 +621,14 @@ size_t SoftwareSerial::write(uint8_t b)
   // Write the start bit
   tx_pin_write(_inverse_logic ? HIGH : LOW);
   tunedDelay(_tx_delay + XMIT_START_ADJUSTMENT);
+  //parity bit
+  uint8_t p = 0;
+  uint8_t t;
+
+  // 0x80 for the 8th bit and go right from there
+  for (t = 0x80; t; t >>= 1)
+	//mask for each bit and increment P
+    if (b & t) p++;
 
   // Write each of the 8 bits
   if (_inverse_logic)
@@ -626,6 +642,24 @@ size_t SoftwareSerial::write(uint8_t b)
     
       tunedDelay(_tx_delay);
     }
+	//TODO this is convoluted, make this into a function
+	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_EVEN)
+		//send 1 if its even 
+		if (p & 0x01){
+			tx_pin_write(LOW); // send 0
+		}else{
+			tx_pin_write(HIGH); // send 1
+		}
+		tunedDelay(_tx_delay);
+	#else if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
+		//send 1 if its odd
+		if (p & 0x01){
+			tx_pin_write(HIGH); // send 1
+		}else{
+			tx_pin_write(LOW); // send 0
+		}
+		tunedDelay(_tx_delay);
+	#endif
 
     tx_pin_write(LOW); // restore pin to natural state
   }
@@ -640,7 +674,24 @@ size_t SoftwareSerial::write(uint8_t b)
     
       tunedDelay(_tx_delay);
     }
-
+	//TODO this is convoluted, make this into a function
+	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_EVEN)
+		//send 1 if its even 
+		if (p & 0x01){
+			tx_pin_write(LOW); // send 0
+		}else{
+			tx_pin_write(HIGH); // send 1
+		}
+		tunedDelay(_tx_delay);
+	#else if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
+		//send 1 if its odd
+		if (p & 0x01){
+			tx_pin_write(HIGH); // send 1
+		}else{
+			tx_pin_write(LOW); // send 0
+		}
+		tunedDelay(_tx_delay);
+	#endif
     tx_pin_write(HIGH); // restore pin to natural state
   }
 

@@ -35,6 +35,17 @@ http://arduiniana.org.
 #include <inttypes.h>
 #include <Stream.h>
 #include <HardwareSerial.h>
+#ifndef GPIO_SERIAL_STOP_BITS
+	#define GPIO_SERIAL_STOP_BITS 1
+#endif
+
+#define GPIO_SERIAL_PARITY_NONE 0
+#define GPIO_SERIAL_PARITY_EVEN 1
+#define GPIO_SERIAL_PARITY_ODD 2
+
+#ifndef GPIO_SERIAL_PARITY
+	#define GPIO_SERIAL_PARITY GPIO_SERIAL_PARITY_NONE
+#endif
 
 /******************************************************************************
 * Definitions
