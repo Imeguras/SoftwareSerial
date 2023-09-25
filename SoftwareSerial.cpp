@@ -651,7 +651,7 @@ size_t SoftwareSerial::write(uint8_t b)
 			tx_pin_write(HIGH); // send 1
 		}
 		tunedDelay(_tx_delay);
-	#else if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
+	#elif (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
 		//send 1 if its odd
 		if (p & 0x01){
 			tx_pin_write(HIGH); // send 1
@@ -683,7 +683,7 @@ size_t SoftwareSerial::write(uint8_t b)
 			tx_pin_write(HIGH); // send 1
 		}
 		tunedDelay(_tx_delay);
-	#else if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
+	#elif (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
 		//send 1 if its odd
 		if (p & 0x01){
 			tx_pin_write(HIGH); // send 1
