@@ -392,6 +392,7 @@ void SoftwareSerial::recv()
       else // else clause added to ensure function timing is ~balanced
         d &= noti;
     }
+	
 	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_EVEN) || (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
 	 	tunedDelay(_rx_delay_stopbit);
 		DebugPulse(_DEBUG_PIN2, 1);
@@ -645,17 +646,17 @@ size_t SoftwareSerial::write(uint8_t b)
 	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_EVEN)
 		//send 1 if its even 
 		if (p & 0x01){
-			tx_pin_write(LOW); // send 0
+			tx_pin_write(HIGH); // send 0
 		}else{
-			tx_pin_write(HIGH); // send 1
+			tx_pin_write(LOW); // send 1
 		}
 		tunedDelay(_tx_delay);
 	#elif (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
 		//send 1 if its odd
 		if (p & 0x01){
-			tx_pin_write(HIGH); // send 1
+			tx_pin_write(LOW); // send 1
 		}else{
-			tx_pin_write(LOW); // send 0
+			tx_pin_write(HIGH); // send 0
 		}
 		tunedDelay(_tx_delay);
 	#endif
