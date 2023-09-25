@@ -643,22 +643,12 @@ size_t SoftwareSerial::write(uint8_t b)
       tunedDelay(_tx_delay);
     }
 	//TODO this is convoluted, make this into a function
-	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_EVEN)
-		//send 1 if its even 
-		if (p & 0x01){
-			tx_pin_write(HIGH); // send 0
-		}else{
-			tx_pin_write(LOW); // send 1
-		}
-		tunedDelay(_tx_delay);
-	#elif (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
-		//send 1 if its odd
-		if (p & 0x01){
-			tx_pin_write(LOW); // send 1
-		}else{
-			tx_pin_write(HIGH); // send 0
-		}
-		tunedDelay(_tx_delay);
+	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
+	if (p & 0x01)
+      tx_pin_write(HIGH); // send 0
+    else 
+      tx_pin_write(LOW); // send 1
+    tunedDelay(_tx_delay);
 	#endif
 
     tx_pin_write(LOW); // restore pin to natural state
@@ -674,30 +664,23 @@ size_t SoftwareSerial::write(uint8_t b)
     
       tunedDelay(_tx_delay);
     }
-	//TODO this is convoluted, make this into a function
-	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_EVEN)
-		//send 1 if its even 
-		if (p & 0x01){
-			tx_pin_write(LOW); // send 0
-		}else{
-			tx_pin_write(HIGH); // send 1
-		}
-		tunedDelay(_tx_delay);
-	#elif (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
-		//send 1 if its odd
-		if (p & 0x01){
-			tx_pin_write(HIGH); // send 1
-		}else{
-			tx_pin_write(LOW); // send 0
-		}
-		tunedDelay(_tx_delay);
+	#if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
+	if (p & 0x01)
+      tx_pin_write(LOW); // send 0
+    else 
+      tx_pin_write(HIGH); // send 1
+    tunedDelay(_tx_delay);
 	#endif
+    
     tx_pin_write(HIGH); // restore pin to natural state
   }
 
   SREG = oldSREG; // turn interrupts back on
-  tunedDelay(_tx_delay);
-  
+  #if (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_EVEN) || (GPIO_SERIAL_PARITY == GPIO_SERIAL_PARITY_ODD)
+	tunedDelay(_tx_delay<<1); //<<1
+  #else
+	tunedDelay(_tx_delay);
+  #endif 
   return 1;
 }
 
